@@ -1,30 +1,72 @@
 import streamlit as st
+import math
 
-def generate_shape_from_text(character, text):
-    """Generate a shape that visually represents the text."""
-    shape = []
-    for i, letter in enumerate(text):
-        spaces = " " * (len(text) - i - 1)  # Create spaces to align the shape
-        line = spaces + (character * (2 * i + 1)) + spaces
-        shape.append(line)
-    return "\n".join(shape)
+# Set the page configuration
+st.set_page_config(page_title="Advanced Scientific Calculator", page_icon="🔢")
 
-# Streamlit app
-def main():
-    st.title("Shape Generator from Text")
-    st.markdown("### Create a shape resembling your text using the first alphabet!")
+# Title and description
+st.title("🔢 Advanced Scientific Calculator")
+st.write("Perform basic and advanced scientific calculations with ease!")
 
-    input_text = st.text_input("Enter text (the first letter will be used to create the shape):", max_chars=50)
-    generate_button = st.button("Generate Shape")
+# Sidebar for user input
+operation = st.sidebar.selectbox(
+    "Select Operation",
+    [
+        "Addition",
+        "Subtraction",
+        "Multiplication",
+        "Division",
+        "Power",
+        "Square Root",
+        "Logarithm",
+        "Sine",
+        "Cosine",
+        "Tangent",
+        "Factorial",
+    ]
+)
 
-    if generate_button and input_text:
-        character = input_text[0].upper()  # Use the first character of the input
-        st.markdown(f"### Shape of '{input_text}'")
-        st.text(f"Character used: {character}")
+# Input fields based on the operation
+if operation in ["Addition", "Subtraction", "Multiplication", "Division", "Power"]:
+    num1 = st.number_input("Enter the first number", value=0.0)
+    num2 = st.number_input("Enter the second number", value=0.0)
 
-        # Generate the shape
-        shape = generate_shape_from_text(character, input_text)
-        st.code(shape)
+elif operation in ["Square Root", "Logarithm", "Sine", "Cosine", "Tangent", "Factorial"]:
+    num1 = st.number_input("Enter the number", value=0.0)
 
-if __name__ == "__main__":
-    main()
+# Perform the selected operation
+result = None
+if st.button("Calculate"):
+    try:
+        if operation == "Addition":
+            result = num1 + num2
+        elif operation == "Subtraction":
+            result = num1 - num2
+        elif operation == "Multiplication":
+            result = num1 * num2
+        elif operation == "Division":
+            result = num1 / num2 if num2 != 0 else "Error: Division by zero"
+        elif operation == "Power":
+            result = math.pow(num1, num2)
+        elif operation == "Square Root":
+            result = math.sqrt(num1) if num1 >= 0 else "Error: Negative input"
+        elif operation == "Logarithm":
+            result = math.log(num1) if num1 > 0 else "Error: Logarithm of non-positive number"
+        elif operation == "Sine":
+            result = math.sin(math.radians(num1))
+        elif operation == "Cosine":
+            result = math.cos(math.radians(num1))
+        elif operation == "Tangent":
+            result = math.tan(math.radians(num1))
+        elif operation == "Factorial":
+            result = math.factorial(int(num1)) if num1 >= 0 and num1.is_integer() else "Error: Factorial of non-integer or negative number"
+    except Exception as e:
+        result = f"Error: {str(e)}"
+
+    # Display the result
+    st.write("### Result:")
+    st.success(result)
+
+# Footer
+st.write("---")
+st.write("Made with ❤️ using Streamlit")
