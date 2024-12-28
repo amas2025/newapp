@@ -97,6 +97,7 @@ with tabs[2]:
         if st.button("Process Payment"):
             st.session_state['cart'] = []
             st.success("Payment successful! The cart has been cleared.")
+            st.session_state['inventory'] = inventory
     else:
         st.write("The cart is empty. Add items to the cart before checkout.")
 
