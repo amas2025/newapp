@@ -64,14 +64,14 @@ with tabs[1]:
     if st.button("Add to Cart"):
         item_data = inventory[inventory['Item'] == item_to_add].iloc[0]
         if quantity_to_add <= item_data['Stock']:
+            inventory.loc[inventory['Item'] == item_to_add, 'Stock'] -= quantity_to_add
+            st.session_state['inventory'] = inventory
             st.session_state['cart'].append({
                 'Item': item_to_add,
                 'Quantity': quantity_to_add,
                 'Price': item_data['Price'],
                 'Total': item_data['Price'] * quantity_to_add
             })
-            inventory.loc[inventory['Item'] == item_to_add, 'Stock'] -= quantity_to_add
-            st.session_state['inventory'] = inventory
             st.success(f"Added {quantity_to_add} {item_to_add}(s) to the cart.")
         else:
             st.error("Not enough stock available.")
