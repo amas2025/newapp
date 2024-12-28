@@ -2,24 +2,25 @@ import streamlit as st
 import math
 
 # Set the page configuration
-st.set_page_config(page_title="Advanced Scientific Calculator", page_icon="🔢", layout="centered")
+st.set_page_config(page_title="Advanced Scientific Calculator", page_icon="🧮", layout="wide")
 
 # Title and description
-st.title("🔢 Advanced Scientific Calculator")
+st.title("🧮 Advanced Scientific Calculator")
 st.markdown("""
 <style>
-    .main { background-color: #f8f9fa; }
-    h1 { text-align: center; font-size: 2.5em; color: #2c3e50; }
-    .stButton button { background-color: #3498db; color: white; border-radius: 5px; }
-    .stButton button:hover { background-color: #2980b9; }
+    .main { background-color: #eaf2f8; }
+    h1 { text-align: center; font-size: 2.8em; color: #2c3e50; }
+    .stButton button { background-color: #1abc9c; color: white; border-radius: 5px; font-size: 1.2em; padding: 10px; }
+    .stButton button:hover { background-color: #16a085; }
+    .stSidebar .sidebar-content { padding: 20px; background-color: #ecf0f1; }
 </style>
 """, unsafe_allow_html=True)
-st.write("Perform basic and advanced scientific calculations with an intuitive interface!")
+st.write("Welcome! Perform a variety of mathematical and scientific calculations effortlessly.")
 
 # Sidebar for user input
-st.sidebar.header("Choose Operation")
+st.sidebar.header("Calculator Options")
 operation = st.sidebar.selectbox(
-    "Select the operation to perform:",
+    "Choose an operation:",
     [
         "Addition",
         "Subtraction",
@@ -37,18 +38,18 @@ operation = st.sidebar.selectbox(
 
 # Input fields based on the operation
 st.sidebar.write("---")
-st.sidebar.subheader("Enter your values:")
+st.sidebar.subheader("Enter Input Values:")
 if operation in ["Addition", "Subtraction", "Multiplication", "Division", "Power"]:
-    num1 = st.sidebar.number_input("First number", value=0.0, format="%.5f")
-    num2 = st.sidebar.number_input("Second number", value=0.0, format="%.5f")
+    num1 = st.sidebar.number_input("First Number:", value=0.0, format="%.5f")
+    num2 = st.sidebar.number_input("Second Number:", value=0.0, format="%.5f")
 
 elif operation in ["Square Root", "Logarithm", "Sine", "Cosine", "Tangent", "Factorial"]:
-    num1 = st.sidebar.number_input("Enter the number", value=0.0, format="%.5f")
+    num1 = st.sidebar.number_input("Input Number:", value=0.0, format="%.5f")
 
-# Perform the selected operation
-result = None
-if st.sidebar.button("Calculate"):
+# Add Calculate button
+if st.sidebar.button("Calculate Now", help="Click to calculate based on the selected operation"):
     try:
+        result = None
         if operation == "Addition":
             result = num1 + num2
         elif operation == "Subtraction":
@@ -71,18 +72,19 @@ if st.sidebar.button("Calculate"):
             result = math.tan(math.radians(num1))
         elif operation == "Factorial":
             result = math.factorial(int(num1)) if num1 >= 0 and num1.is_integer() else "Error: Factorial of non-integer or negative number"
+        
+        # Display the result
+        st.markdown("<hr>", unsafe_allow_html=True)
+        st.subheader("Calculation Result:")
+        st.info(f"**Result:** {result}", icon="✅")
     except Exception as e:
-        result = f"Error: {str(e)}"
+        st.error(f"An error occurred: {str(e)}")
 
-    # Display the result
-    st.markdown("<hr>", unsafe_allow_html=True)
-    st.subheader("Result:")
-    st.success(result if result is not None else "No calculation performed.")
-
-# Footer
+# Footer with branding
 st.markdown("""
 ---
-<div style="text-align: center; font-size: 0.85em; color: #7f8c8d;">
-    Made with ❤️ using <a href="https://streamlit.io" style="color: #2980b9;">Streamlit</a>
+<div style="text-align: center; font-size: 0.9em; color: #7f8c8d;">
+    Crafted with ❤️ using <a href="https://streamlit.io" style="color: #1abc9c;">Streamlit</a> | 
+    <a href="https://github.com/" style="color: #3498db;">View on GitHub</a>
 </div>
 """, unsafe_allow_html=True)
