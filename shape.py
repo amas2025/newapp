@@ -1,6 +1,9 @@
 import streamlit as st
 from cryptography.fernet import Fernet
 
+# Set the page configuration
+st.set_page_config(page_title="Symmetric Encryption & Decryption", page_icon="🔐", layout="centered")
+
 # Generate or load a secret key
 @st.cache_data
 def generate_key():
@@ -10,10 +13,7 @@ def generate_key():
 key = generate_key()
 fernet = Fernet(key)
 
-# Streamlit app configuration
-st.set_page_config(page_title="Symmetric Encryption & Decryption", page_icon="🔐", layout="centered")
-
-# Title and description
+# Streamlit app content
 st.title("🔐 Advanced Symmetric Encryption & Decryption")
 st.write("This web app allows you to securely encrypt and decrypt messages using symmetric encryption.")
 
@@ -27,7 +27,6 @@ st.subheader("Enter your input")
 user_text = st.text_area("Text", placeholder="Enter the text here...")
 
 if mode == "Encrypt":
-    # Encryption logic
     if st.button("Encrypt Text"):
         if user_text:
             encrypted_text = fernet.encrypt(user_text.encode()).decode()
@@ -39,7 +38,6 @@ if mode == "Encrypt":
             st.warning("Please enter text to encrypt.")
 
 elif mode == "Decrypt":
-    # Decryption logic
     user_key = st.text_input("Enter the secret key")
     if st.button("Decrypt Text"):
         if user_text and user_key:
@@ -53,7 +51,6 @@ elif mode == "Decrypt":
         else:
             st.warning("Please provide both text and a valid key for decryption.")
 
-# Footer
 st.write("---")
 st.markdown(
     "Made with ❤️ using [Streamlit](https://streamlit.io) and [Cryptography](https://cryptography.io)"
