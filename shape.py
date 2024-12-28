@@ -2,15 +2,24 @@ import streamlit as st
 import math
 
 # Set the page configuration
-st.set_page_config(page_title="Advanced Scientific Calculator", page_icon="🔢")
+st.set_page_config(page_title="Advanced Scientific Calculator", page_icon="🔢", layout="centered")
 
 # Title and description
 st.title("🔢 Advanced Scientific Calculator")
-st.write("Perform basic and advanced scientific calculations with ease!")
+st.markdown("""
+<style>
+    .main { background-color: #f8f9fa; }
+    h1 { text-align: center; font-size: 2.5em; color: #2c3e50; }
+    .stButton button { background-color: #3498db; color: white; border-radius: 5px; }
+    .stButton button:hover { background-color: #2980b9; }
+</style>
+""", unsafe_allow_html=True)
+st.write("Perform basic and advanced scientific calculations with an intuitive interface!")
 
 # Sidebar for user input
+st.sidebar.header("Choose Operation")
 operation = st.sidebar.selectbox(
-    "Select Operation",
+    "Select the operation to perform:",
     [
         "Addition",
         "Subtraction",
@@ -27,16 +36,18 @@ operation = st.sidebar.selectbox(
 )
 
 # Input fields based on the operation
+st.sidebar.write("---")
+st.sidebar.subheader("Enter your values:")
 if operation in ["Addition", "Subtraction", "Multiplication", "Division", "Power"]:
-    num1 = st.number_input("Enter the first number", value=0.0)
-    num2 = st.number_input("Enter the second number", value=0.0)
+    num1 = st.sidebar.number_input("First number", value=0.0, format="%.5f")
+    num2 = st.sidebar.number_input("Second number", value=0.0, format="%.5f")
 
 elif operation in ["Square Root", "Logarithm", "Sine", "Cosine", "Tangent", "Factorial"]:
-    num1 = st.number_input("Enter the number", value=0.0)
+    num1 = st.sidebar.number_input("Enter the number", value=0.0, format="%.5f")
 
 # Perform the selected operation
 result = None
-if st.button("Calculate"):
+if st.sidebar.button("Calculate"):
     try:
         if operation == "Addition":
             result = num1 + num2
@@ -64,9 +75,14 @@ if st.button("Calculate"):
         result = f"Error: {str(e)}"
 
     # Display the result
-    st.write("### Result:")
-    st.success(result)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.subheader("Result:")
+    st.success(result if result is not None else "No calculation performed.")
 
 # Footer
-st.write("---")
-st.write("Made with ❤️ using Streamlit")
+st.markdown("""
+---
+<div style="text-align: center; font-size: 0.85em; color: #7f8c8d;">
+    Made with ❤️ using <a href="https://streamlit.io" style="color: #2980b9;">Streamlit</a>
+</div>
+""", unsafe_allow_html=True)
