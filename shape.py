@@ -1,57 +1,107 @@
 import streamlit as st
-from cryptography.fernet import Fernet
+import pandas as pd
 
-# Set the page configuration
-st.set_page_config(page_title="Symmetric Encryption & Decryption", page_icon="🔐", layout="centered")
+# Set page configuration
+st.set_page_config(page_title="Advanced POS System", page_icon="🛒", layout="wide")
 
-# Generate or load a secret key
-@st.cache_data
-def generate_key():
-    return Fernet.generate_key()
+# Initialize session state for inventory and cart
+if 'inventory' not in st.session_state:
+    st.session_state['inventory'] = pd.DataFrame({
+        'Item': ['Apple', 'Banana', 'Orange', 'Milk', 'Bread'],
+        'Price': [1.0, 0.5, 0.75, 2.5, 1.5],
+        'Stock': [50, 100, 75, 30, 40]
+    })
+if 'cart' not in st.session_state:
+    st.session_state['cart'] = []
 
-# Initialize the key and Fernet object
-key = generate_key()
-fernet = Fernet(key)
+# Title and description
+st.title("🛒 Advanced POS System")
+st.write("Welcome to the Advanced POS System. Manage inventory, create orders, and process checkouts seamlessly.")
 
-# Streamlit app content
-st.title("🔐 Advanced Symmetric Encryption & Decryption")
-st.write("This web app allows you to securely encrypt and decrypt messages using symmetric encryption.")
+# Tab layout
+tabs = st.tabs(["Inventory", "New Order", "Checkout"])
 
-# Sidebar for encryption and decryption options
-st.sidebar.header("Options")
-mode = st.sidebar.radio("Choose Mode", ["Encrypt", "Decrypt"])
+# Inventory Management Tab
+with tabs[0]:
+    st.header("Inventory Management")
+    st.write("View and update your inventory below:")
 
-# Input fields
-st.write("---")
-st.subheader("Enter your input")
-user_text = st.text_area("Text", placeholder="Enter the text here...")
+    inventory = st.session_state['inventory']
 
-if mode == "Encrypt":
-    if st.button("Encrypt Text"):
-        if user_text:
-            encrypted_text = fernet.encrypt(user_text.encode()).decode()
-            st.write("### Encrypted Text:")
-            st.code(encrypted_text)
-            st.write("### Secret Key (Keep this safe!):")
-            st.code(key.decode())
+    st.dataframe(inventory, use_container_width=True)
+
+    with st.expander("Update Inventory"):
+        item_name = st.text_input("Item Name")
+        item_price = st.number_input("Price", min_value=0.0, value=0.0, step=0.01)
+        item_stock = st.number_input("Stock", min_value=0, value=0, step=1)
+        
+        if st.button("Add/Update Item"):
+            if item_name:
+                if item_name in inventory['Item'].values:
+                    idx = inventory[inventory['Item'] == item_name].index[0]
+                    inventory.loc[idx, 'Price'] = item_price
+                    inventory.loc[idx, 'Stock'] = item_stock
+                else:
+                    new_item = pd.DataFrame({
+                        'Item': [item_name],
+                        'Price': [item_price],
+                        'Stock': [item_stock]
+                    })
+                    inventory = pd.concat([inventory, new_item], ignore_index=True)
+                st.session_state['inventory'] = inventory
+                st.success("Inventory updated successfully!")
+            else:
+                st.error("Please enter an item name.")
+
+# New Order Tab
+with tabs[1]:
+    st.header("New Order")
+    st.write("Add items to the cart from the inventory:")
+
+    item_to_add = st.selectbox("Select Item", inventory['Item'].values)
+    quantity_to_add = st.number_input("Quantity", min_value=1, value=1, step=1)
+
+    if st.button("Add to Cart"):
+        item_data = inventory[inventory['Item'] == item_to_add].iloc[0]
+        if quantity_to_add <= item_data['Stock']:
+            st.session_state['cart'].append({
+                'Item': item_to_add,
+                'Quantity': quantity_to_add,
+                'Price': item_data['Price'],
+                'Total': item_data['Price'] * quantity_to_add
+            })
+            inventory.loc[inventory['Item'] == item_to_add, 'Stock'] -= quantity_to_add
+            st.session_state['inventory'] = inventory
+            st.success(f"Added {quantity_to_add} {item_to_add}(s) to the cart.")
         else:
-            st.warning("Please enter text to encrypt.")
+            st.error("Not enough stock available.")
 
-elif mode == "Decrypt":
-    user_key = st.text_input("Enter the secret key")
-    if st.button("Decrypt Text"):
-        if user_text and user_key:
-            try:
-                fernet_decrypt = Fernet(user_key.encode())
-                decrypted_text = fernet_decrypt.decrypt(user_text.encode()).decode()
-                st.write("### Decrypted Text:")
-                st.success(decrypted_text)
-            except Exception as e:
-                st.error(f"Decryption failed: {e}")
-        else:
-            st.warning("Please provide both text and a valid key for decryption.")
+    st.write("### Cart:")
+    if st.session_state['cart']:
+        cart_df = pd.DataFrame(st.session_state['cart'])
+        st.dataframe(cart_df, use_container_width=True)
+    else:
+        st.write("The cart is empty.")
 
+# Checkout Tab
+with tabs[2]:
+    st.header("Checkout")
+    st.write("Review the cart and process payment:")
+
+    if st.session_state['cart']:
+        cart_df = pd.DataFrame(st.session_state['cart'])
+        st.dataframe(cart_df, use_container_width=True)
+        total_amount = cart_df['Total'].sum()
+        st.write(f"### Total Amount: ${total_amount:.2f}")
+
+        if st.button("Process Payment"):
+            st.session_state['cart'] = []
+            st.success("Payment successful! The cart has been cleared.")
+    else:
+        st.write("The cart is empty. Add items to the cart before checkout.")
+
+# Footer
 st.write("---")
 st.markdown(
-    "Made with ❤️ using [Streamlit](https://streamlit.io) and [Cryptography](https://cryptography.io)"
+    "Made with ❤️ using [Streamlit](https://streamlit.io). Manage your POS efficiently!"
 )
